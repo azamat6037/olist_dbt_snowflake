@@ -1,0 +1,45 @@
+version: 2
+
+models:
+  - name: fct_perfect_orders
+    description: >
+      North Star Metric: Daily aggregation of Perfect Orders.
+      A Perfect Order is Delivered + On Time + Has Review Score >= 4.
+    columns:
+      - name: order_date
+        description: Date of order placement
+        tests:
+          - unique
+          - not_null
+      - name: perfect_order_rate
+        description: Ratio of perfect orders to total orders
+
+  - name: fct_seller_performance
+    description: >
+      Branch 1 - Supply & Assortment metrics.
+      Monthly aggregation of active sellers, catalog breadth, and geo-coverage.
+    columns:
+      - name: order_month
+        tests:
+          - unique
+          - not_null
+
+  - name: fct_fulfillment_metrics
+    description: >
+      Branch 2 - Logistics Efficiency metrics.
+      Monthly aggregation of fulfillment velocity and freight cost efficiency.
+    columns:
+      - name: order_month
+        tests:
+          - unique
+          - not_null
+
+  - name: fct_customer_satisfaction
+    description: >
+      Branch 3 - Customer Satisfaction metrics.
+      Monthly aggregation of on-time rate, NPS proxy, and repeat buyer rate.
+    columns:
+      - name: order_month
+        tests:
+          - unique
+          - not_null

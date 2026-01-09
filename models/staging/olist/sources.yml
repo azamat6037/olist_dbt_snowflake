@@ -1,0 +1,34 @@
+version: 2
+
+sources:
+  - name: olist_raw
+    database: OLIST_RAW
+    schema: DATA
+    description: Raw Olist e-commerce data from Snowflake
+    tables:
+      - name: olist_reviews
+        description: Customer reviews data
+        
+      - name: olist_products
+        description: Product catalog data
+        
+      - name: olist_payments
+        description: Payment information for orders
+        
+      - name: product_category_name_translation
+        description: Translation table for product category names
+        
+      - name: olist_orders
+        description: Orders data
+        
+      - name: olist_sellers
+        description: Seller information
+        
+      - name: olist_customers
+        description: Customer information
+        
+      - name: olist_items
+        description: Order items data
+        
+      - name: olist_geolocation
+        description: Geolocation data

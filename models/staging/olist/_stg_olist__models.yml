@@ -1,0 +1,71 @@
+version: 2
+
+models:
+  - name: stg_olist__orders
+    description: Staged orders data with cleaned timestamps
+    columns:
+      - name: order_id
+        description: Primary key
+        tests:
+          - unique
+          - not_null
+
+  - name: stg_olist__reviews
+    description: Staged customer reviews with cleaned score
+    columns:
+      - name: review_id
+        description: Review ID (note source data may contain duplicates)
+        tests:
+          - not_null
+      - name: review_score
+        description: Review score (1-5)
+        tests:
+          - not_null
+
+  - name: stg_olist__items
+    description: Staged order items with price and freight
+    columns:
+      - name: order_id
+        tests:
+          - not_null
+      - name: order_item_id
+        tests:
+          - not_null
+
+  - name: stg_olist__products
+    description: Staged products with English category names
+    columns:
+      - name: product_id
+        description: Primary key
+        tests:
+          - unique
+          - not_null
+
+  - name: stg_olist__sellers
+    description: Staged seller information
+    columns:
+      - name: seller_id
+        description: Primary key
+        tests:
+          - unique
+          - not_null
+
+  - name: stg_olist__customers
+    description: Staged customer information
+    columns:
+      - name: customer_id
+        description: Primary key
+        tests:
+          - unique
+          - not_null
+      - name: customer_unique_id
+        description: Unique customer identifier for repeat buyer analysis
+        tests:
+          - not_null
+
+  - name: stg_olist__payments
+    description: Staged payment information
+    columns:
+      - name: order_id
+        tests:
+          - not_null

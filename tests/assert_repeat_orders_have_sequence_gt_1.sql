@@ -1,12 +1,11 @@
--- Business Test: Repeat orders must have order sequence > 1
--- Validates the repeat buyer logic
+-- Business Test: Repeat buyers must have total orders > 1
+-- Validates the repeat buyer logic in dim_customers
 
 select
-    order_id,
     customer_unique_id,
-    customer_order_sequence,
-    is_repeat_order
-from {{ ref('int_customer_orders') }}
+    total_orders,
+    is_repeat_buyer
+from {{ ref('dim_customers') }}
 where 
-    is_repeat_order = true 
-    and customer_order_sequence <= 1
+    is_repeat_buyer = true 
+    and total_orders <= 1

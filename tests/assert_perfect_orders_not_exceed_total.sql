@@ -1,9 +1,8 @@
--- Business Test: Perfect orders cannot exceed total orders
--- Validates the logical relationship between metrics
+-- Business Test: On-time delivery rate must be between 0 and 1
+-- Validates the logical rate calculation
 
 select
-    order_date,
-    total_orders,
-    perfect_orders
-from {{ ref('fct_perfect_orders') }}
-where perfect_orders > total_orders
+    metric_month,
+    on_time_delivery_rate
+from {{ ref('agg_operations__logistics_metrics') }}
+where on_time_delivery_rate < 0 or on_time_delivery_rate > 1

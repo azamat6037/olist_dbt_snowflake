@@ -20,9 +20,18 @@ models:
     staging:
       +materialized: view
       +schema: olist_staging
-    intermediate:
-      +materialized: view
-      +schema: olist_intermediate
     marts:
       +materialized: table
       +schema: olist_marts
+      dims:
+        +schema: olist_dims
+      facts:
+        +schema: olist_facts
+      executive:
+        +schema: olist_marts_executive
+      operations:
+        +schema: olist_marts_operations
+      commercial:
+        +schema: olist_marts_commercial
+      cx:
+        +schema: olist_marts_cx

@@ -2,12 +2,12 @@
 -- Negative times indicate data quality issues or timestamp errors
 
 select
-    order_month,
-    avg_order_approval_hours,
-    avg_seller_processing_hours,
-    avg_last_mile_hours
-from {{ ref('fct_fulfillment_metrics') }}
+    order_id,
+    approval_time_hours,
+    processing_time_hours,
+    shipping_time_hours
+from {{ ref('fct_orders') }}
 where 
-    avg_order_approval_hours < 0
-    or avg_seller_processing_hours < 0
-    or avg_last_mile_hours < 0
+    approval_time_hours < 0
+    or processing_time_hours < 0
+    or shipping_time_hours < 0

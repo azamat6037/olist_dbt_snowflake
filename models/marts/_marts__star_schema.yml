@@ -1,0 +1,96 @@
+version: 2
+
+models:
+  # Dimension Tables
+  - name: dim_customers
+    description: >
+      Customer dimension table with surrogate key and enriched attributes.
+      Contains customer location, order history stats, and repeat buyer flag.
+    columns:
+      - name: customer_key
+        description: Surrogate key for the customer dimension
+        tests:
+          - unique
+          - not_null
+      - name: customer_unique_id
+        description: Natural unique identifier for the customer
+      - name: is_repeat_buyer
+        description: Flag indicating if customer has made more than one order
+
+  - name: dim_products
+    description: >
+      Product dimension table with surrogate key and product attributes.
+      Contains category info and physical dimensions.
+    columns:
+      - name: product_key
+        description: Surrogate key for the product dimension
+        tests:
+          - unique
+          - not_null
+      - name: product_id
+        description: Natural product identifier
+      - name: product_category_name_english
+        description: English name of the product category
+
+  - name: dim_sellers
+    description: >
+      Seller dimension table with surrogate key and location attributes.
+    columns:
+      - name: seller_key
+        description: Surrogate key for the seller dimension
+        tests:
+          - unique
+          - not_null
+      - name: seller_id
+        description: Natural seller identifier
+
+  - name: dim_dates
+    description: >
+      Date dimension table with date spine from 2016-2019.
+      Contains day, week, month, quarter, and year attributes.
+    columns:
+      - name: date_key
+        description: Integer date key in YYYYMMDD format
+        tests:
+          - unique
+          - not_null
+      - name: date_day
+        description: The calendar date
+
+  # Fact Tables
+  - name: fct_orders
+    description: >
+      Order fact table at order grain. Contains dimension foreign keys,
+      revenue measures, timing metrics, and delivery performance flags.
+    columns:
+      - name: order_id
+        description: Primary key - unique order identifier
+        tests:
+          - unique
+          - not_null
+      - name: customer_key
+        description: Foreign key to dim_customers
+      - name: order_date_key
+        description: Foreign key to dim_dates
+      - name: order_total_value
+        description: Total order value (items + freight)
+      - name: is_perfect_order
+        description: Flag for perfect orders (delivered on-time with good review)
+
+  - name: fct_order_items
+    description: >
+      Order items fact table at item grain. Contains dimension foreign keys
+      and item-level measures including price and freight.
+    columns:
+      - name: order_id
+        description: Part of composite primary key
+        tests:
+          - not_null
+      - name: order_item_id
+        description: Part of composite primary key
+        tests:
+          - not_null
+      - name: product_key
+        description: Foreign key to dim_products
+      - name: seller_key
+        description: Foreign key to dim_sellers

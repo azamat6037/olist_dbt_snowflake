@@ -6,7 +6,7 @@ select
     order_delivered_customer_date,
     order_estimated_delivery_date,
     is_on_time
-from {{ ref('int_orders_enriched') }}
+from {{ ref('fct_orders') }}
 where 
     is_on_time = true 
     and order_delivered_customer_date > order_estimated_delivery_date

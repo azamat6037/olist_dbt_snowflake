@@ -2,7 +2,7 @@
 -- This validates our North Star Metric calculation
 
 select
-    order_date,
+    metric_month,
     perfect_order_rate
-from {{ ref('fct_perfect_orders') }}
+from {{ ref('agg_executive__company_metrics') }}
 where perfect_order_rate < 0 or perfect_order_rate > 1

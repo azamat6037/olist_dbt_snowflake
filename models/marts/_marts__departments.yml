@@ -1,0 +1,94 @@
+version: 2
+
+models:
+  # Executive Dashboard
+  - name: agg_executive__company_metrics
+    description: >
+      Company-level executive dashboard metrics aggregated monthly.
+      Contains Total Revenue (GMV), Order Volume, AOV, Perfect Order Rate, and Active Customers.
+    columns:
+      - name: metric_month
+        description: Month of aggregation
+        tests:
+          - not_null
+          - unique
+      - name: total_revenue_gmv
+        description: "MAIN KPI: Total Gross Merchandise Value (price + freight)"
+      - name: total_order_volume
+        description: Count of delivered orders
+      - name: average_order_value
+        description: GMV divided by order count
+      - name: perfect_order_rate
+        description: Percentage of orders that are delivered on-time with good reviews
+      - name: total_active_customers
+        description: Unique customers with orders in the month
+
+  # Operations & Logistics Department
+  - name: agg_operations__logistics_metrics
+    description: >
+      Operations & Logistics department metrics aggregated monthly.
+      Tracks delivery performance, efficiency, and carrier operations.
+    columns:
+      - name: metric_month
+        description: Month of aggregation
+        tests:
+          - not_null
+          - unique
+      - name: on_time_delivery_rate
+        description: "MAIN KPI: Percentage of orders delivered on or before estimated date"
+      - name: avg_delivery_time_days
+        description: Average days from purchase to delivery
+      - name: avg_freight_ratio
+        description: Average freight cost as percentage of item price
+      - name: avg_carrier_handover_lag_hours
+        description: Average hours from order approval to carrier pickup
+
+  # Commercial Department (Sellers & Supply)
+  - name: agg_commercial__seller_metrics
+    description: >
+      Commercial department metrics aggregated monthly.
+      Tracks seller ecosystem health, catalog diversity, and geographic coverage.
+    columns:
+      - name: metric_month
+        description: Month of aggregation
+        tests:
+          - not_null
+          - unique
+      - name: active_seller_count
+        description: "MAIN KPI: Count of unique sellers with sales"
+      - name: catalog_breadth
+        description: Number of unique product categories sold
+      - name: seller_geographic_spread
+        description: Number of unique seller cities
+      - name: top_seller_concentration_risk
+        description: Revenue share of top 10% of sellers (higher = more concentrated risk)
+      - name: active_products_count
+        description: Count of unique products sold
+      - name: total_items_sold
+        description: Total order items sold
+
+  # Customer Experience Department (CX & Retention)
+  - name: agg_cx__satisfaction_metrics
+    description: >
+      Customer Experience department metrics aggregated monthly.
+      Tracks customer satisfaction, retention, and engagement.
+    columns:
+      - name: metric_month
+        description: Month of aggregation
+        tests:
+          - not_null
+          - unique
+      - name: customer_satisfaction_score
+        description: "MAIN KPI: Average review score (1-5 scale)"
+      - name: order_cancellation_rate
+        description: Percentage of orders that were canceled
+      - name: repeat_buyer_rate
+        description: Percentage of orders from repeat customers
+      - name: response_rate
+        description: Percentage of orders that received a review
+      - name: five_star_reviews
+        description: Count of 5-star reviews
+      - name: one_star_reviews
+        description: Count of 1-star reviews
+      - name: unique_customers
+        description: Count of unique customers

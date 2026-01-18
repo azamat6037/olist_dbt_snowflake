@@ -1,8 +1,8 @@
--- Business Test: NPS Proxy must be between -1 and 1
--- (-1 = all 1-star, +1 = all 5-star)
+-- Business Test: CSAT score must be between 1 and 5
+-- Validates the customer satisfaction score calculation
 
 select
-    order_month,
-    nps_proxy
-from {{ ref('fct_customer_satisfaction') }}
-where nps_proxy < -1 or nps_proxy > 1
+    metric_month,
+    customer_satisfaction_score
+from {{ ref('agg_cx__satisfaction_metrics') }}
+where customer_satisfaction_score < 1 or customer_satisfaction_score > 5

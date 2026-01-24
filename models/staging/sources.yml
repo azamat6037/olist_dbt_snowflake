@@ -1,0 +1,36 @@
+version: 2
+
+sources:
+  - name: olist
+    description: "Raw data from Olist E-Commerce dataset loaded from S3."
+    database: OLIST_RAW      # The physical database in Snowflake
+    schema: DATA           # The physical schema where the tables are loaded
+    loader: S3 via Airbyte   # (Optional) Metadata about how data got here
+    
+    tables:
+      - name: olist_orders
+        description: "Core order data. One row per order."
+        
+      - name: olist_items
+        description: "Items within an order. One row per item."
+
+      - name: olist_customers
+        description: "Customer profiles and location info."
+
+      - name: olist_products
+        description: "Product attributes (category, dimensions, weight)."
+
+      - name: olist_sellers
+        description: "Seller profiles and location info."
+
+      - name: olist_payments
+        description: "Payment methods and installments."
+
+      - name: olist_reviews
+        description: "Customer reviews and ratings (1-5)."
+
+      - name: olist_geolocation
+        description: "Zip code (prefix) lat/long coordinates."
+
+      - name: product_category_name_translation
+        description: "Translation map for category names (Portuguese -> English)."

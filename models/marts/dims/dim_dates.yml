@@ -1,0 +1,66 @@
+version: 2
+
+models:
+  - name: dim_dates
+    description: >
+      Date dimension table with date spine from 2016-2019.
+      Contains day, week, month, quarter, and year attributes.
+
+      - unique
+          - not_null
+
+    columns:
+      - name: date_key
+        description: Integer date key in YYYYMMDD format
+        tests:
+          - unique
+          - not_null
+
+      - name: date_day
+        description: The calendar date
+        granularity: day
+
+      - name: day_of_week
+        description: Day of week (0-6, 0 is Sunday)
+
+      - name: day_name
+        description: Name of the day (Monday, Tuesday, etc.)
+
+      - name: day_of_month
+        description: Day of the month (1-31)
+
+      - name: day_of_year
+        description: Day of the year (1-366)
+
+      - name: week_of_year
+        description: Week of the year (1-53)
+
+      - name: week_start_date
+        description: Start date of the week
+
+      - name: month_number
+        description: Month number (1-12)
+
+      - name: month_name
+        description: Name of the month
+
+      - name: month_start_date
+        description: Start date of the month
+
+      - name: quarter_number
+        description: Quarter number (1-4)
+
+      - name: quarter_name
+        description: Quarter name (Q1, Q2, Q3, Q4)
+
+      - name: quarter_start_date
+        description: Start date of the quarter
+
+      - name: year_number
+        description: Year number
+
+      - name: year_start_date
+        description: Start date of the year
+
+      - name: is_weekend
+        description: Boolean flag indicating if the date is a weekend

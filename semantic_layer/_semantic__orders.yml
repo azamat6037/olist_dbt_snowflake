@@ -1,163 +1,42 @@
-# dbt Fusion 2.0 Semantic Model Format
-# Semantic annotations embedded in model definition
-
 models:
   - name: fct_orders
-    description: >
-      Order fact table for semantic layer analysis. Enables consistent metric 
-      definitions for revenue, delivery performance, and customer satisfaction.
+    description: Orders fact table.
 
     semantic:
-      # Primary entity - the grain of the model
       primary_entity:
         name: order
-        keys:
-          - order_id
+        keys: [order_id]
 
-      # Foreign entities for joins
-      foreign_entities:
-        - name: customer
-          keys:
-            - customer_key
-
-      # Time dimensions for time-series analysis
       time_dimensions:
         - name: order_date
           column: order_purchase_timestamp
           time_granularity: day
-          description: The timestamp when the order was placed.
 
-        - name: delivery_date
-          column: order_delivered_customer_date
-          time_granularity: day
-          description: The timestamp when the order was delivered.
-
-      # Categorical dimensions for slicing
       dimensions:
         - name: order_status
           column: order_status
-          description: Current status of the order.
-
-        - name: primary_payment_type
-          column: primary_payment_type
-          description: The payment method used for the highest value payment.
-
-        - name: customer_unique_id
-          column: customer_unique_id
-          description: Unique identifier for the customer.
-
         - name: is_delivered
           column: is_delivered
-          description: Whether the order was delivered.
-
         - name: is_on_time
           column: is_on_time
-          description: Whether the order was delivered on or before estimated date.
 
-        - name: is_perfect_order
-          column: is_perfect_order
-          description: Whether the order was delivered on-time with a good review.
-
-      # Metrics (replaces measures in new format)
       metrics:
-        # Count metrics
-        - name: order_count
-          label: Order Count
-          description: Total count of orders.
+        - name: orders
           agg: count
           column: order_id
 
-        - name: delivered_order_count
-          label: Delivered Order Count
-          description: Count of delivered orders.
-          agg: count
-          expr: "case when is_delivered then order_id end"
-
-        - name: perfect_order_count
-          label: Perfect Order Count
-          description: Count of perfect orders (delivered, on-time, good review).
-          agg: count
-          expr: "case when is_perfect_order then order_id end"
-
-        # Revenue metrics
-        - name: total_revenue
-          label: Total Revenue
-          description: Total order value including items and freight.
+        - name: revenue
           agg: sum
           column: order_total_value
 
-        - name: items_revenue
-          label: Items Revenue
-          description: Total revenue from items only (excludes freight).
-          agg: sum
-          column: order_items_value
-
-        - name: freight_revenue
-          label: Freight Revenue
-          description: Total freight/shipping revenue.
-          agg: sum
-          column: order_freight_value
-
-        - name: average_order_value
-          label: Average Order Value
-          description: Average order value.
+        - name: avg_order_value
           agg: average
           column: order_total_value
 
-        # Item metrics
-        - name: total_items
-          label: Total Items
-          description: Total number of items sold.
-          agg: sum
-          column: order_items_count
-
-        # Review metrics
-        - name: average_review_score
-          label: Average Review Score
-          description: Average customer review score (1-5).
+        - name: avg_review_score
           agg: average
           column: review_score
 
-        - name: orders_with_reviews
-          label: Orders With Reviews
-          description: Count of orders that received a review.
-          agg: count
-          expr: "case when review_score is not null then order_id end"
-
-        # Delivery metrics
-        - name: on_time_deliveries
-          label: On-Time Deliveries
-          description: Count of orders delivered on or before estimated date.
-          agg: count
-          expr: "case when is_on_time then order_id end"
-
-        - name: average_delivery_days
-          label: Average Delivery Days
-          description: Average number of days from purchase to delivery.
+        - name: avg_delivery_days
           agg: average
           column: delivery_time_days
-
-        # Derived metrics (calculated from other metrics)
-        - name: on_time_delivery_rate
-          label: On-Time Delivery Rate
-          description: Percentage of delivered orders that arrived on time.
-          type: derived
-          expr: on_time_deliveries / nullif(delivered_order_count, 0)
-
-        - name: perfect_order_rate
-          label: Perfect Order Rate
-          description: Percentage of orders that were perfect.
-          type: derived
-          expr: perfect_order_count / nullif(delivered_order_count, 0)
-
-        - name: review_response_rate
-          label: Review Response Rate
-          description: Percentage of orders that received a review.
-          type: derived
-          expr: orders_with_reviews / nullif(order_count, 0)
-
-        - name: freight_ratio
-          label: Freight Ratio
-          description: Freight as percentage of item revenue.
-          type: derived
-          expr: freight_revenue / nullif(items_revenue, 0)

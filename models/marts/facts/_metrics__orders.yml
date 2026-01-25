@@ -1,5 +1,6 @@
 # Metrics derived from the orders semantic model
 metrics:
+  # Simple metrics (directly from measures)
   - name: revenue
     label: Revenue
     description: Total gross merchandise value (GMV) including items and freight.
@@ -7,6 +8,77 @@ metrics:
     type_params:
       measure: total_revenue
 
+  - name: order_count
+    label: Order Count
+    description: Total number of orders.
+    type: simple
+    type_params:
+      measure: order_count
+
+  - name: delivered_order_count
+    label: Delivered Order Count
+    description: Total number of delivered orders.
+    type: simple
+    type_params:
+      measure: delivered_order_count
+
+  - name: on_time_deliveries
+    label: On-Time Deliveries
+    description: Count of orders delivered on or before the estimated date.
+    type: simple
+    type_params:
+      measure: on_time_deliveries
+
+  - name: perfect_order_count
+    label: Perfect Order Count
+    description: Count of perfect orders (delivered, on-time, good review).
+    type: simple
+    type_params:
+      measure: perfect_order_count
+
+  - name: orders_with_reviews
+    label: Orders With Reviews
+    description: Count of orders that received a customer review.
+    type: simple
+    type_params:
+      measure: orders_with_reviews
+
+  - name: items_revenue
+    label: Items Revenue
+    description: Total revenue from items only (excludes freight).
+    type: simple
+    type_params:
+      measure: items_revenue
+
+  - name: freight_revenue
+    label: Freight Revenue
+    description: Total freight/shipping revenue.
+    type: simple
+    type_params:
+      measure: freight_revenue
+
+  - name: customer_satisfaction_score
+    label: Customer Satisfaction Score
+    description: Average review score across all reviewed orders (CSAT).
+    type: simple
+    type_params:
+      measure: average_review_score
+
+  - name: average_order_value
+    label: Average Order Value
+    description: Average value per order.
+    type: simple
+    type_params:
+      measure: average_order_value
+
+  - name: average_delivery_days
+    label: Average Delivery Days
+    description: Average number of days from purchase to delivery.
+    type: simple
+    type_params:
+      measure: average_delivery_days
+
+  # Derived metrics (calculated from other metrics)
   - name: on_time_delivery_rate
     label: On-Time Delivery Rate
     description: Percentage of delivered orders that arrived on or before the estimated date.
@@ -26,13 +98,6 @@ metrics:
       metrics:
         - name: perfect_order_count
         - name: delivered_order_count
-
-  - name: customer_satisfaction_score
-    label: Customer Satisfaction Score
-    description: Average review score across all reviewed orders (CSAT).
-    type: simple
-    type_params:
-      measure: average_review_score
 
   - name: review_response_rate
     label: Review Response Rate

@@ -63,5 +63,3 @@ customer_order_history as (
 )
 
 select * from customer_order_history
-</Parameter>
-<parameter name="EmptyFile">false

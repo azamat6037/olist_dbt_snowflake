@@ -19,6 +19,34 @@ reviews as (
     select * from {{ ref('stg_olist__reviews') }}
 ),
 
+-- Deduplicate reviews: keep the most recent review per order
+reviews_deduped as (
+    select
+        order_id,
+        review_id,
+        review_score,
+        review_creation_date,
+        review_comment_title,
+        review_comment_message,
+        row_number() over (
+            partition by order_id 
+            order by review_creation_date desc nulls last
+        ) as rn
+    from reviews
+),
+
+reviews_single as (
+    select
+        order_id,
+        review_id,
+        review_score,
+        review_creation_date,
+        review_comment_title,
+        review_comment_message
+    from reviews_deduped
+    where rn = 1
+),
+
 -- Enrich orders with review data and calculated metrics
 enriched_orders as (
     select
@@ -36,7 +64,7 @@ enriched_orders as (
         o.order_delivered_customer_date,
         o.order_estimated_delivery_date,
         
-        -- Review data
+        -- Review data (deduplicated to single review per order)
         r.review_id,
         r.review_score,
         r.review_creation_date,
@@ -99,7 +127,7 @@ enriched_orders as (
         end as is_perfect_order
 
     from orders o
-    left join reviews r on o.order_id = r.order_id
+    left join reviews_single r on o.order_id = r.order_id
 )
 
 select * from enriched_orders

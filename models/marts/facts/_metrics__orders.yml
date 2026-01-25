@@ -1,0 +1,55 @@
+# Metrics derived from the orders semantic model
+metrics:
+  - name: revenue
+    label: Revenue
+    description: Total gross merchandise value (GMV) including items and freight.
+    type: simple
+    type_params:
+      measure: total_revenue
+
+  - name: on_time_delivery_rate
+    label: On-Time Delivery Rate
+    description: Percentage of delivered orders that arrived on or before the estimated date.
+    type: derived
+    type_params:
+      expr: on_time_deliveries / nullif(delivered_order_count, 0)
+      metrics:
+        - name: on_time_deliveries
+        - name: delivered_order_count
+
+  - name: perfect_order_rate
+    label: Perfect Order Rate
+    description: Percentage of orders that were delivered on-time with a good review (4+).
+    type: derived
+    type_params:
+      expr: perfect_order_count / nullif(delivered_order_count, 0)
+      metrics:
+        - name: perfect_order_count
+        - name: delivered_order_count
+
+  - name: customer_satisfaction_score
+    label: Customer Satisfaction Score
+    description: Average review score across all reviewed orders (CSAT).
+    type: simple
+    type_params:
+      measure: average_review_score
+
+  - name: review_response_rate
+    label: Review Response Rate
+    description: Percentage of orders that received a customer review.
+    type: derived
+    type_params:
+      expr: orders_with_reviews / nullif(order_count, 0)
+      metrics:
+        - name: orders_with_reviews
+        - name: order_count
+
+  - name: freight_ratio
+    label: Freight Ratio
+    description: Freight as a percentage of total revenue (cost efficiency metric).
+    type: derived
+    type_params:
+      expr: freight_revenue / nullif(items_revenue, 0)
+      metrics:
+        - name: freight_revenue
+        - name: items_revenue

@@ -1,0 +1,156 @@
+version: 2
+
+models:
+  - name: int_order_payments__aggregated
+    description: >
+      Aggregates payment data at the order level. This model centralizes payment
+      aggregation logic that was previously embedded in fct_orders.
+    columns:
+      - name: order_id
+        description: Primary key. Foreign key to orders.
+        tests:
+          - unique
+          - not_null
+      - name: total_payment_value
+        description: Sum of all payment values for this order.
+      - name: payment_types_count
+        description: Count of distinct payment types used for this order.
+      - name: payment_installments_max
+        description: Maximum number of installments used across all payments.
+      - name: primary_payment_type
+        description: The payment type with the highest value for this order.
+      - name: payment_transactions_count
+        description: Total number of payment transactions for this order.
+
+  - name: int_order_items__enriched
+    description: >
+      Aggregates order item data at the order level with enriched metrics.
+      This model centralizes order item aggregation logic that was previously
+      embedded in fct_orders.
+    columns:
+      - name: order_id
+        description: Primary key. Foreign key to orders.
+        tests:
+          - unique
+          - not_null
+      - name: total_items_price
+        description: Sum of all item prices in this order.
+      - name: total_freight_value
+        description: Sum of all freight values in this order.
+      - name: total_order_value
+        description: Total order value (items + freight).
+      - name: items_count
+        description: Number of items in this order.
+      - name: unique_products_count
+        description: Number of distinct products in this order.
+      - name: unique_sellers_count
+        description: Number of distinct sellers in this order.
+      - name: avg_item_price
+        description: Average price per item in this order.
+      - name: avg_freight_value
+        description: Average freight value per item in this order.
+      - name: freight_ratio
+        description: Ratio of freight to item price (cost efficiency metric).
+      - name: earliest_shipping_limit
+        description: Earliest shipping limit date among all items.
+      - name: latest_shipping_limit
+        description: Latest shipping limit date among all items.
+
+  - name: int_customers__deduplicated
+    description: >
+      Deduplicates customers to one row per customer_unique_id. In the Olist dataset,
+      a single customer can have multiple customer_id values across different orders.
+      This model picks the most recent customer record based on order date.
+    columns:
+      - name: customer_unique_id
+        description: Primary key. Business identifier for the customer.
+        tests:
+          - unique
+          - not_null
+      - name: customer_id
+        description: Most recent customer_id for this unique customer.
+      - name: customer_zip_code_prefix
+        description: Customer ZIP code prefix.
+      - name: customer_city
+        description: Customer city.
+      - name: customer_state
+        description: Customer state (2-letter code).
+
+  - name: int_customers__order_history
+    description: >
+      Calculates customer-level order history metrics including lifetime value,
+      order counts, and date ranges. This logic was previously embedded in dim_customers.
+    columns:
+      - name: customer_unique_id
+        description: Primary key. Business identifier for the customer.
+        tests:
+          - unique
+          - not_null
+      - name: first_order_date
+        description: Timestamp of the customer's first order.
+      - name: last_order_date
+        description: Timestamp of the customer's most recent order.
+      - name: total_orders
+        description: Total number of orders placed by this customer.
+      - name: lifetime_value
+        description: Total amount spent by this customer across all orders.
+      - name: avg_order_value
+        description: Average order value for this customer.
+      - name: days_between_first_and_last_order
+        description: Number of days between first and last order.
+
+  - name: int_orders__enriched
+    description: >
+      Enriches orders with review data and delivery timing calculations.
+      This model centralizes order enrichment logic including timing metrics
+      and delivery flags that were previously embedded in fct_orders.
+    columns:
+      - name: order_id
+        description: Primary key.
+        tests:
+          - unique
+          - not_null
+      - name: customer_id
+        description: Foreign key to customers.
+        tests:
+          - not_null
+      - name: order_status
+        description: Current status of the order.
+      - name: order_purchase_timestamp
+        description: Timestamp when the order was placed.
+      - name: order_approved_at
+        description: Timestamp when the payment was approved.
+      - name: order_delivered_carrier_date
+        description: Timestamp when the order was handed to the carrier.
+      - name: order_delivered_customer_date
+        description: Timestamp when the order was delivered to the customer.
+      - name: order_estimated_delivery_date
+        description: Estimated delivery date shown to customer at purchase.
+      - name: review_id
+        description: Foreign key to review (if exists).
+      - name: review_score
+        description: Review score (1-5) given by customer.
+      - name: review_creation_date
+        description: Date when the review was created.
+      - name: review_comment_title
+        description: Title of the review comment.
+      - name: review_comment_message
+        description: Full review comment message.
+      - name: approval_time_hours
+        description: Hours from purchase to payment approval.
+      - name: processing_time_hours
+        description: Hours from approval to carrier handover.
+      - name: shipping_time_hours
+        description: Hours from carrier pickup to customer delivery.
+      - name: delivery_time_days
+        description: Days from purchase to customer delivery.
+      - name: is_delivered
+        description: Boolean flag indicating if order was delivered.
+      - name: is_canceled
+        description: Boolean flag indicating if order was canceled.
+      - name: is_on_time
+        description: Boolean flag indicating if delivery was on or before estimated date.
+      - name: has_good_review
+        description: Boolean flag indicating if review score is 4 or higher.
+      - name: is_perfect_order
+        description: Boolean flag - true if delivered, on-time, and has good review.

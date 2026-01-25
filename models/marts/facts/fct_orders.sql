@@ -4,8 +4,16 @@
     )
 }}
 
-with orders as (
-    select * from {{ ref('stg_olist__orders') }}
+{#
+    Fact: Orders
+    
+    This fact table contains one row per order with all metrics and foreign keys.
+    Uses intermediate models for aggregations and enrichments, making this
+    model much simpler and focused on assembly rather than computation.
+#}
+
+with orders_enriched as (
+    select * from {{ ref('int_orders__enriched') }}
 ),
 
 customers as (
@@ -16,40 +24,15 @@ dim_customers as (
     select * from {{ ref('dim_customers') }}
 ),
 
-reviews as (
-    select * from {{ ref('stg_olist__reviews') }}
-),
-
-payments as (
-    select * from {{ ref('stg_olist__payments') }}
-),
-
-items as (
-    select * from {{ ref('stg_olist__items') }}
-),
-
--- Aggregate payments per order
 order_payments as (
-    select
-        order_id,
-        sum(payment_value) as total_payment_value,
-        count(distinct payment_type) as payment_types_count
-    from payments
-    group by 1
+    select * from {{ ref('int_order_payments__aggregated') }}
 ),
 
--- Aggregate items per order
-order_items_agg as (
-    select
-        order_id,
-        sum(price) as total_items_price,
-        sum(freight_value) as total_freight_value,
-        count(*) as items_count
-    from items
-    group by 1
+order_items as (
+    select * from {{ ref('int_order_items__enriched') }}
 ),
 
--- Build fact table
+-- Build fact table by joining pre-computed intermediate models
 final as (
     select
         -- Primary key
@@ -71,48 +54,42 @@ final as (
         o.order_delivered_customer_date,
         o.order_estimated_delivery_date,
         
-        -- Measures: Revenue
+        -- Measures: Revenue (from intermediate)
         coalesce(oi.total_items_price, 0) as order_items_value,
         coalesce(oi.total_freight_value, 0) as order_freight_value,
-        coalesce(oi.total_items_price, 0) + coalesce(oi.total_freight_value, 0) as order_total_value,
+        coalesce(oi.total_order_value, 0) as order_total_value,
         coalesce(op.total_payment_value, 0) as order_payment_value,
         coalesce(oi.items_count, 0) as order_items_count,
         
-        -- Measures: Timing (hours)
-        timestampdiff(hour, o.order_purchase_timestamp, o.order_approved_at) as approval_time_hours,
-        timestampdiff(hour, o.order_approved_at, o.order_delivered_carrier_date) as processing_time_hours,
-        timestampdiff(hour, o.order_delivered_carrier_date, o.order_delivered_customer_date) as shipping_time_hours,
-        timestampdiff(day, o.order_purchase_timestamp, o.order_delivered_customer_date) as delivery_time_days,
+        -- Measures: Additional metrics (from intermediate)
+        coalesce(oi.unique_products_count, 0) as unique_products_count,
+        coalesce(oi.unique_sellers_count, 0) as unique_sellers_count,
+        coalesce(op.payment_types_count, 0) as payment_types_count,
+        op.primary_payment_type,
         
-        -- Review data
-        r.review_id,
-        r.review_score,
-        r.review_creation_date,
+        -- Measures: Timing (from intermediate)
+        o.approval_time_hours,
+        o.processing_time_hours,
+        o.shipping_time_hours,
+        o.delivery_time_days,
         
-        -- Delivery flags
-        case when o.order_status = 'delivered' then true else false end as is_delivered,
-        case when o.order_status = 'canceled' then true else false end as is_canceled,
-        case 
-            when o.order_delivered_customer_date <= o.order_estimated_delivery_date then true 
-            else false 
-        end as is_on_time,
-        case when r.review_score >= 4 then true else false end as has_good_review,
+        -- Review data (from intermediate)
+        o.review_id,
+        o.review_score,
+        o.review_creation_date,
         
-        -- Perfect order flag
-        case 
-            when o.order_status = 'delivered' 
-                and o.order_delivered_customer_date <= o.order_estimated_delivery_date 
-                and r.review_score >= 4 
-            then true 
-            else false 
-        end as is_perfect_order
+        -- Delivery flags (from intermediate)
+        o.is_delivered,
+        o.is_canceled,
+        o.is_on_time,
+        o.has_good_review,
+        o.is_perfect_order
 
-    from orders o
+    from orders_enriched o
     inner join customers c on o.customer_id = c.customer_id
     left join dim_customers dc on c.customer_unique_id = dc.customer_unique_id
-    left join reviews r on o.order_id = r.order_id
     left join order_payments op on o.order_id = op.order_id
-    left join order_items_agg oi on o.order_id = oi.order_id
+    left join order_items oi on o.order_id = oi.order_id
 )
 
 select * from final

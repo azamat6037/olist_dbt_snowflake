@@ -3,9 +3,10 @@ semantic_models:
     model: ref('fct_orders')
     description: Orders fact table.
 
-    primary_entity:
-      name: order
-      expr: order_id
+    entities:
+      - name: order
+        type: primary
+        expr: order_id
 
     defaults:
       agg_time_dimension: order_date
